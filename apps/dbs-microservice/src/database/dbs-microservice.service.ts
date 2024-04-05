@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 import { Pool, PoolClient } from 'pg'
 import { CONNECTION_POOL } from './database.module-definition'
 import { IRunQuery } from '@app/libs/lib/interfaces/runQueryInterface.i'
-import { Observable } from 'rxjs'
+import { catchError, from, map, Observable, of, tap } from 'rxjs'
 
 @Injectable()
 class DbsMicroserviceService {
@@ -10,40 +10,36 @@ class DbsMicroserviceService {
 
   constructor(@Inject(CONNECTION_POOL) private readonly pool: Pool) {}
 
-  async runQuery(payload: IRunQuery) {
+  runQuery(payload: IRunQuery): Observable<any> {
     const { query, params } = payload
-    return this.queryWithLogging(this.pool, query, params)
+    return from(this.queryWithLogging(this.pool, query, params)).pipe(
+      tap(result => {
+        const message = this.getLogMessage(query, params)
+        this.logger.log(message)
+      }),
+      map(result => result.rows),
+      catchError(error => {
+        const message = this.getLogMessage(query, params)
+        this.logger.error(message)
+        console.log(error)
+        return of({ error: error.message })
+      })
+    )
   }
 
-  getLogMessage(query: string, params?: unknown[]) {
+  private getLogMessage(query: string, params?: unknown[]): string {
     if (!params) {
       return `Query: ${query}`
     }
     return `Query: ${query} Params: ${JSON.stringify(params)}`
   }
 
-  async queryWithLogging(
+  private async queryWithLogging(
     source: Pool | PoolClient,
     query: string,
     params?: unknown[]
-  ) {
-    const queryPromise = source.query(query, params)
-
-    // message without unnecessary spaces and newlines
-    const message = this.getLogMessage(query, params)
-      .replace(/\n|/g, '')
-      .replace(/  +/g, ' ')
-
-    queryPromise
-      .then(() => {
-        this.logger.log(message)
-      })
-      .catch(error => {
-        this.logger.warn(message)
-        throw error
-      })
-
-    return queryPromise
+  ): Promise<any> {
+    return source.query(query, params)
   }
 
   async getPoolClient() {

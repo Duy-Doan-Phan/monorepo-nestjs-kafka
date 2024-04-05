@@ -23,7 +23,7 @@ export class UsersController {
   }
 
   @Post('db')
-  @ResponseMessage('Lấy danh sách người dùng thành công')
+  @ResponseMessage('TestDb')
   testConnectDB(@Body() body: any) {
     return this.usersService.testConnectDB(body)
   }
