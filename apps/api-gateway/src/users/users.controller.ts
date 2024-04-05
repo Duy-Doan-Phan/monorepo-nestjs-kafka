@@ -13,7 +13,6 @@ export class UsersController {
   @ApiBody({ type: CreateUserDto })
   @ResponseMessage('Tạo người dùng thành công')
   createUser(@Body() createUserDto: CreateUserDto) {
-    console.log('api', createUserDto)
     return this.usersService.createUser(createUserDto)
   }
 
@@ -21,5 +20,11 @@ export class UsersController {
   @ResponseMessage('Lấy chi tiết người dùng thành công')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id)
+  }
+
+  @Post('db')
+  @ResponseMessage('Lấy danh sách người dùng thành công')
+  testConnectDB(@Body() body: any) {
+    return this.usersService.testConnectDB(body)
   }
 }

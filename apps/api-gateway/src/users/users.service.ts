@@ -1,13 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { ClientKafka } from '@nestjs/microservices'
 import { CreateUserDto } from '@app/libs/lib/dto'
 import { from, Observable, timeout } from 'rxjs'
 import { map } from 'rxjs/operators'
 
 @Injectable()
-export class UsersService {
+export class UsersService implements OnModuleInit {
   constructor(
-    @Inject('USERS_SERVICE') private readonly usersClient: ClientKafka
+    @Inject('USERS_SERVICE') private readonly usersClient: ClientKafka,
+    @Inject('DBS_SERVICE') private readonly dbsClient: ClientKafka
   ) {}
 
   createUser(createUserDto: CreateUserDto) {
@@ -25,8 +26,23 @@ export class UsersService {
     )
   }
 
+  testConnectDB(body: any): Observable<any> {
+    return from(
+      this.dbsClient.send('run_query', body).pipe(
+        map(data => {
+          console.log('data return', data)
+          return data
+        })
+        // timeout(5000)
+      )
+    )
+  }
+
   async onModuleInit() {
+    // this.usersClient.subscribeToResponseOf('get_user')
+    this.dbsClient.subscribeToResponseOf('run_query')
     this.usersClient.subscribeToResponseOf('get_user')
+    await this.dbsClient.connect()
     await this.usersClient.connect()
   }
 }
