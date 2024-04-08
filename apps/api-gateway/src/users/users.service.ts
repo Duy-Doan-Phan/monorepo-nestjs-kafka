@@ -10,12 +10,22 @@ import { map, of } from 'rxjs'
 import { UserEntity } from '@app/libs/lib/entities'
 import { CreateUserDto, UpdateUserDto } from '@app/libs/lib/dto'
 import { plainToInstance } from 'class-transformer'
+import { compareSync, genSaltSync, hashSync } from 'bcrypt'
 
 @Injectable()
 export class UsersService implements OnModuleInit {
   constructor(
     @Inject('USERS_SERVICE') private readonly usersClient: ClientKafka
   ) {}
+
+  getHashPassword = (password: string): string => {
+    const salt = genSaltSync(10)
+    return hashSync(password, salt)
+  }
+
+  isValidPassword = (password: string, hash: string): boolean => {
+    return compareSync(password, hash)
+  }
 
   findAll() {
     return this.usersClient.send('get_users', {}).pipe(
@@ -68,9 +78,9 @@ export class UsersService implements OnModuleInit {
           throw new BadRequestException(value.error)
         }
         if (!value) {
-          return of['ok']
+          throw new NotFoundException('User not found')
         }
-        throw new BadRequestException('User already exists')
+        return plainToInstance(UserEntity, value)
       })
     )
   }
