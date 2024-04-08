@@ -1,11 +1,27 @@
 import { Module } from '@nestjs/common'
 import { UsersMicroserviceController } from './users-microservice.controller'
-import { UsersMicroserviceService } from './users-microservice.service'
-import { UsersRepository } from './users.repository'
+import UsersRepository from './users.repository'
+import { ClientsModule, Transport } from '@nestjs/microservices'
 
 @Module({
-  imports: [],
+  imports: [
+    ClientsModule.register([
+      {
+        name: 'DBS_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'dbs',
+            brokers: ['localhost:9092']
+          },
+          consumer: {
+            groupId: 'dbs-consumer'
+          }
+        }
+      }
+    ])
+  ],
   controllers: [UsersMicroserviceController],
-  providers: [UsersMicroserviceService, UsersRepository]
+  providers: [UsersRepository]
 })
 export class UsersMicroserviceModule {}

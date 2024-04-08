@@ -45,6 +45,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/users-microservice/tsconfig.app.json"
       }
+    },
+    "dbs-microservice": {
+      "type": "application",
+      "root": "apps/dbs-microservice",
+      "entryFile": "main",
+      "sourceRoot": "apps/dbs-microservice/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/dbs-microservice/tsconfig.app.json"
+      }
     }
   }
 }

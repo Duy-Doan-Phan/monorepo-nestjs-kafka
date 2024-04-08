@@ -1,24 +1,40 @@
-import { Controller, ParseIntPipe, ValidationPipe } from '@nestjs/common'
-import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices'
-
+import { Controller } from '@nestjs/common'
+import { MessagePattern, Payload } from '@nestjs/microservices'
+import UsersMicroserviceRepository from './users.repository'
 import { CreateUserDto } from '@app/libs/lib/dto'
-import { UsersMicroserviceService } from './users-microservice.service'
-import { Observable, of } from 'rxjs'
 
 @Controller()
 export class UsersMicroserviceController {
-  constructor(private readonly appService: UsersMicroserviceService) {}
+  constructor(private readonly appRepository: UsersMicroserviceRepository) {}
 
-  @EventPattern('create_user')
-  handleUserCreate(data: CreateUserDto) {
-    // this.appService.createUser(data)
-    console.log('microservice post', data)
-    return data
+  @MessagePattern('get_users')
+  handleGetUsers() {
+    return this.appRepository.getAll()
   }
 
-  @MessagePattern('get_user')
-  handleUserGet(@Payload() data: any): Observable<any> {
-    console.log('microservice get', data)
-    return data
+  @MessagePattern('create_user')
+  handleCreateUser(@Payload() body: CreateUserDto) {
+    return this.appRepository.createUser(body)
+  }
+
+  @MessagePattern('find_user_by_id')
+  handleFindUserById(@Payload() id: string) {
+    return this.appRepository.findUserById(+id)
+  }
+
+  @MessagePattern('find_user_by_email')
+  handleFindUserByEmail(@Payload() email: string) {
+    return this.appRepository.findUserByEmail(email)
+  }
+
+  @MessagePattern('update_user')
+  handleUpdateUser(@Payload() body: any) {
+    const { id, data } = body
+    return this.appRepository.updateUser(id, data)
+  }
+
+  @MessagePattern('delete_user')
+  handleDeleteUser(@Payload() id: string) {
+    return this.appRepository.deleteUser(+id)
   }
 }
