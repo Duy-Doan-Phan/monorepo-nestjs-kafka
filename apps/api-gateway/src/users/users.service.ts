@@ -1,44 +1,31 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { ClientKafka } from '@nestjs/microservices'
-import { CreateUserDto } from '@app/libs/lib/dto'
-import { from, Observable, tap, timeout } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { Observable } from 'rxjs'
+import { UserEntity } from '@app/libs/lib/entities'
 
 @Injectable()
 export class UsersService implements OnModuleInit {
   constructor(
-    @Inject('USERS_SERVICE') private readonly usersClient: ClientKafka,
-    @Inject('DBS_SERVICE') private readonly dbsClient: ClientKafka
+    @Inject('USERS_SERVICE') private readonly usersClient: ClientKafka
   ) {}
 
-  createUser(createUserDto: CreateUserDto) {
-    this.usersClient.emit('create_user', JSON.stringify(createUserDto))
-  }
+  //
+  // testConnectDB(body: any): Observable<any> {
+  //   return this.dbsClient.send('run_query', body).pipe(
+  //     tap(data => {
+  //       console.log('data return', data)
+  //     })
+  //   )
+  // }
 
-  findOne(id: number): Observable<any> {
-    console.log(id)
-    return from(this.usersClient.send('get_user', id)).pipe(
-      map(data => {
-        console.log('data return', data)
-        return data
-      })
-      // timeout(5000)
-    )
-  }
-
-  testConnectDB(body: any): Observable<any> {
-    return this.dbsClient.send('run_query', body).pipe(
-      tap(data => {
-        console.log('data return', data)
-      })
-    )
+  findAll(): Observable<UserEntity> {
+    // return this.dbsClient.send('run_query', `SELECT * FROM USERS`)
+    //todo xu ly error va data tra ve
+    return this.usersClient.send('get_users')
   }
 
   async onModuleInit() {
-    // this.usersClient.subscribeToResponseOf('get_user')
-    this.dbsClient.subscribeToResponseOf('run_query')
-    this.usersClient.subscribeToResponseOf('get_user')
-    await this.dbsClient.connect()
+    this.usersClient.subscribeToResponseOf('get_users')
     await this.usersClient.connect()
   }
 }

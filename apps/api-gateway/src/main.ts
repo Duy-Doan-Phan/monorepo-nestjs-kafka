@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core'
+import { NestFactory, Reflector } from '@nestjs/core'
 import { ApiGatewayModule } from './api-gateway.module'
 import { ConfigService } from '@nestjs/config'
 import * as cookieParser from 'cookie-parser'
@@ -8,6 +8,7 @@ import {
   ValidationPipe,
   VersioningType
 } from '@nestjs/common'
+import { TransformInterceptor } from './core/tranform.inteceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule)
@@ -15,6 +16,13 @@ async function bootstrap() {
   //.env for main.ts
   const configService = app.get(ConfigService)
   const port = configService.get<string>('PORT')
+
+  //auth
+  const reflector = app.get(Reflector)
+  // app.useGlobalGuards(new JwtAuthGuard(reflector))
+
+  //interceptor
+  app.useGlobalInterceptors(new TransformInterceptor(reflector))
 
   //config cookies parser
   app.use(cookieParser())

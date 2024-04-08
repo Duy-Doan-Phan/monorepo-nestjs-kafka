@@ -1,17 +1,26 @@
-// apps/auth-microservice/src/app/users.repository.ts
-
-import { Injectable } from '@nestjs/common'
-import { User } from '@app/libs/lib/entities'
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
+import { plainToInstance } from 'class-transformer'
+import { ClientKafka } from '@nestjs/microservices'
+import { UserEntity } from '@app/libs/lib/entities'
+import { catchError, map, Observable, of } from 'rxjs'
 
 @Injectable()
-export class UsersRepository {
-  private readonly users: User[] = []
+class UsersMicroserviceRepository implements OnModuleInit {
+  constructor(@Inject('DBS_SERVICE') private readonly dbsClient: ClientKafka) {}
 
-  save(user: User) {
-    this.users.push({ ...user, id: this.users.length + 1 })
+  getAll(): Observable<UserEntity[]> {
+    return this.dbsClient.send('run_query', 'SELECT * FROM USERS').pipe(
+      map(response => response.map(data => plainToInstance(UserEntity, data))),
+      catchError(error => {
+        return of({ error: error.message })
+      })
+    )
   }
 
-  findOne(id: number) {
-    return this.users.find(u => u.id === id) || null
+  async onModuleInit(): Promise<void> {
+    this.dbsClient.subscribeToResponseOf('run_query')
+    await this.dbsClient.connect()
   }
 }
+
+export default UsersMicroserviceRepository

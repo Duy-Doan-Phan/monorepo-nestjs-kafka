@@ -10,14 +10,9 @@ export class DbsMicroserviceController {
     private readonly dbsMicroserviceService: DbsMicroserviceService
   ) {}
 
-  // @Get()
-  // getHello(): string {
-  //   return this.dbsMicroserviceService.getHello()
-  // }
-
   @MessagePattern('run_query')
   handleUserGet(@Payload() payload: IRunQuery): Observable<any> {
-    console.log('payload for other service 1', payload)
+    console.log('payload for other service')
     return this.dbsMicroserviceService.runQuery(payload)
   }
 }

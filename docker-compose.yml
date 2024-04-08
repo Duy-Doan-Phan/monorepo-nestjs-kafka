@@ -1,12 +1,14 @@
 services:
   zookeeper:
-    image: wurstmeister/zookeeper:latest
+    image: zookeeper:3.7.0
+    platform: linux/arm64/v8
     container_name: zookeeper
     ports:
       - "2181:2181"
 
   kafka:
     image: wurstmeister/kafka:latest
+    platform: linux/arm64/v8
     container_name: kafka
     ports:
       - "9092:9092"

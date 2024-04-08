@@ -16,13 +16,13 @@ class DbsMicroserviceService {
       tap(result => {
         const message = this.getLogMessage(query, params)
         this.logger.log(message)
+        return result.rows
       }),
-      map(result => result.rows),
+      // map(result => result.rows),
       catchError(error => {
         const message = this.getLogMessage(query, params)
         this.logger.error(message)
-        console.log(error)
-        return of({ error: error.message })
+        return of([{ error: error.message }])
       })
     )
   }

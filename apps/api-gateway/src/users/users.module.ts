@@ -18,19 +18,6 @@ import { UsersController } from './users.controller'
             groupId: 'users-consumer'
           }
         }
-      },
-      {
-        name: 'DBS_SERVICE',
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: 'dbs',
-            brokers: ['localhost:9092']
-          },
-          consumer: {
-            groupId: 'dbs-consumer'
-          }
-        }
       }
     ])
   ],
