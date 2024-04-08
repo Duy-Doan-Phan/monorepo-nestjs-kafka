@@ -1,6 +1,11 @@
+import { Exclude } from 'class-transformer'
+
 export class UserEntity {
   id?: number
-  username: string
+
+  name: string
+  @Exclude({ toPlainOnly: true })
   password: string
+
   email: string
 }

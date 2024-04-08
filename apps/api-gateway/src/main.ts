@@ -3,11 +3,7 @@ import { ApiGatewayModule } from './api-gateway.module'
 import { ConfigService } from '@nestjs/config'
 import * as cookieParser from 'cookie-parser'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import {
-  ClassSerializerInterceptor,
-  ValidationPipe,
-  VersioningType
-} from '@nestjs/common'
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'
 import { TransformInterceptor } from './core/tranform.inteceptor'
 
 async function bootstrap() {
@@ -23,6 +19,8 @@ async function bootstrap() {
 
   //interceptor
   app.useGlobalInterceptors(new TransformInterceptor(reflector))
+
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
 
   //config cookies parser
   app.use(cookieParser())

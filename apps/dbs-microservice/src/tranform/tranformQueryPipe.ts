@@ -5,8 +5,8 @@ export class TransformQueryPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata): any {
     // Kiểm tra xem giá trị đầu vào có phải là IRunQuery không
     if (metadata.type === 'body') {
-      const query: string = value.q
-      const params: unknown[] = value.p || ''
+      const query: string = value.query
+      const params: unknown[] = value.params || ''
 
       // Chuyển đổi query từ dạng string '' thành dạng template literals ``
       const transformedQuery: string = this.transformQuery(query)

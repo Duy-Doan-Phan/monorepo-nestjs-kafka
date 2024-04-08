@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 import { Pool, PoolClient } from 'pg'
 import { CONNECTION_POOL } from './database.module-definition'
 import { IRunQuery } from '@app/libs/lib/interfaces/runQueryInterface.i'
-import { catchError, from, map, Observable, of, tap } from 'rxjs'
+import { catchError, from, map, of } from 'rxjs'
 
 @Injectable()
 class DbsMicroserviceService {
@@ -10,19 +10,16 @@ class DbsMicroserviceService {
 
   constructor(@Inject(CONNECTION_POOL) private readonly pool: Pool) {}
 
-  runQuery(payload: IRunQuery): Observable<any> {
+  runQuery(payload: IRunQuery) {
     const { query, params } = payload
     return from(this.queryWithLogging(this.pool, query, params)).pipe(
-      tap(result => {
-        const message = this.getLogMessage(query, params)
-        this.logger.log(message)
-        return result.rows
-      }),
-      // map(result => result.rows),
+      map(result => result.rows),
       catchError(error => {
         const message = this.getLogMessage(query, params)
         this.logger.error(message)
-        return of([{ error: error.message }])
+        return of({
+          error: error.message
+        })
       })
     )
   }
