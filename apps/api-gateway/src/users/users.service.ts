@@ -39,6 +39,8 @@ export class UsersService implements OnModuleInit {
   }
 
   createUser(data: CreateUserDto) {
+    const { password } = data
+    data.password = this.getHashPassword(password)
     return this.usersClient.send('create_user', data).pipe(
       map(value => {
         if (value?.error) {
