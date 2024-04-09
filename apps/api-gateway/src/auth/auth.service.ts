@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { UsersService } from '../users/users.service'
 import { IUser } from '../users/users.interface'
-import { catchError, from, of, switchMap, throwError } from 'rxjs'
+import { catchError, from, of, switchMap, tap, throwError } from 'rxjs'
 
 @Injectable()
 export class AuthService {
@@ -18,27 +18,14 @@ export class AuthService {
   ) {}
 
   validateUser(email: string, password: string) {
-    return from(this.usersService.findByEmail(email)).pipe(
-      switchMap(value => {
-        console.log(value, 'xxxx')
-        if (value.error || !value) {
-          throw new BadRequestException(value.error || 'User not found')
+    const user = this.usersService.findByEmail(email)
+    return user.pipe(
+      tap(user => {
+        console.log('user: ', user)
+        if (user.password === password) {
+          return of(user)
         }
-
-        const isValidPass = this.usersService.isValidPassword(
-          password,
-          value.password
-        )
-        if (!isValidPass) {
-          throw new BadRequestException('Password không hợp lệ')
-        }
-
-        console.log(value, 'abc')
-        return value
-      }),
-      catchError(error => {
-        // Xử lý lỗi ở đây
-        return throwError(error)
+        return throwError(() => new UnauthorizedException())
       })
     )
   }

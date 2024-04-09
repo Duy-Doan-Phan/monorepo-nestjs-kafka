@@ -68,10 +68,6 @@ export class UsersService implements OnModuleInit {
   }
 
   findByEmail(email: string) {
-    if (!email) {
-      throw new BadRequestException('Email is required')
-    }
-
     console.log('email from server', email)
 
     return from(this.usersClient.send('find_user_by_email', { email })).pipe(

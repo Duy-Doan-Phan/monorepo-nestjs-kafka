@@ -13,7 +13,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     })
   }
 
-  async validate(email: string, password: string): Promise<any> {
+  validate(email: string, password: string): Observable<any> {
     return this.authService.validateUser(email, password).pipe(
       map(user => {
         if (!user) {
