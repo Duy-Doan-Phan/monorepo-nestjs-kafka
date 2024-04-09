@@ -18,6 +18,8 @@ export class LocalAuthGuard extends AuthGuard('local') {
 
   handleRequest(err, info) {
     // You can throw an exception based on either "info" or "err" arguments
+    console.log(info, 'info')
+    console.log(err, 'err')
     if (err || !info) {
       throw (
         err ||

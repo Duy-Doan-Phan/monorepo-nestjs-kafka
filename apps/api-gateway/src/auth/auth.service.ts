@@ -1,13 +1,10 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException
-} from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { UsersService } from '../users/users.service'
 import { IUser } from '../users/users.interface'
-import { catchError, from, of, switchMap, tap, throwError } from 'rxjs'
+import { from, of, take } from 'rxjs'
+import { map } from 'rxjs/operators'
 
 @Injectable()
 export class AuthService {
@@ -17,17 +14,20 @@ export class AuthService {
     private usersService: UsersService
   ) {}
 
-  validateUser(email: string, password: string) {
-    const user = this.usersService.findByEmail(email)
-    return user.pipe(
-      tap(user => {
-        console.log('user: ', user)
-        if (user.password === password) {
-          return of(user)
-        }
-        return throwError(() => new UnauthorizedException())
-      })
-    )
+  validateUser(email: string, pass: string) {
+    // return of(
+    //   this.usersService.findByEmail(email).subscribe(user => {
+    //     console.log(user, '///')
+    //     if (!user) return null
+    //     // const isValidPass = this.usersService.isValidPassword(pass, user.password)
+    //     // if (!isValidPass) throw new BadRequestException('Password không hợp lệ')
+    //
+    //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    //     const { password, ...rest } = user
+    //     return rest
+    //   })
+    // )
+    return of(this.usersService.findByEmail(email))
   }
 
   login(user: IUser, response: Response) {
@@ -39,6 +39,11 @@ export class AuthService {
       name,
       email
     }
+    return of(user).pipe(
+      map(value => {
+        return value
+      })
+    )
     //set refresh token as cookies
     // response.cookie('refresh_token', refresh_token, {
     //   httpOnly: true,

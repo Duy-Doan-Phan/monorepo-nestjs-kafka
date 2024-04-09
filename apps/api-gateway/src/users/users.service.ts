@@ -6,7 +6,7 @@ import {
   OnModuleInit
 } from '@nestjs/common'
 import { ClientKafka } from '@nestjs/microservices'
-import { catchError, from, map, Observable, of, throwError } from 'rxjs'
+import { catchError, from, map, Observable, of, take, throwError } from 'rxjs'
 import { UserEntity } from '@app/libs/lib/entities'
 import { CreateUserDto, UpdateUserDto } from '@app/libs/lib/dto'
 import { plainToInstance } from 'class-transformer'
@@ -68,16 +68,18 @@ export class UsersService implements OnModuleInit {
   }
 
   findByEmail(email: string) {
-    console.log('email from server', email)
-
-    return from(this.usersClient.send('find_user_by_email', { email })).pipe(
+    if (!email) {
+      throw new BadRequestException('Email is required')
+    }
+    return this.usersClient.send('find_user_by_email', email).pipe(
       map(value => {
-        console.log(value)
-        return value
-      }),
-      catchError(error => {
-        console.log(error)
-        return throwError(error)
+        if (value?.error) {
+          return value
+        }
+        if (!value) {
+          return null
+        }
+        return plainToInstance(UserEntity, value)
       })
     )
   }
