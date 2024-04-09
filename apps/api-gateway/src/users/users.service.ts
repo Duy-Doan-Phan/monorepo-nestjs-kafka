@@ -6,16 +6,26 @@ import {
   OnModuleInit
 } from '@nestjs/common'
 import { ClientKafka } from '@nestjs/microservices'
-import { map, of } from 'rxjs'
+import { catchError, from, map, Observable, of, take, throwError } from 'rxjs'
 import { UserEntity } from '@app/libs/lib/entities'
 import { CreateUserDto, UpdateUserDto } from '@app/libs/lib/dto'
 import { plainToInstance } from 'class-transformer'
+import { compareSync, genSaltSync, hashSync } from 'bcrypt'
 
 @Injectable()
 export class UsersService implements OnModuleInit {
   constructor(
     @Inject('USERS_SERVICE') private readonly usersClient: ClientKafka
   ) {}
+
+  getHashPassword = (password: string): string => {
+    const salt = genSaltSync(10)
+    return hashSync(password, salt)
+  }
+
+  isValidPassword = (password: string, hash: string): boolean => {
+    return compareSync(password, hash)
+  }
 
   findAll() {
     return this.usersClient.send('get_users', {}).pipe(
@@ -29,6 +39,8 @@ export class UsersService implements OnModuleInit {
   }
 
   createUser(data: CreateUserDto) {
+    const { password } = data
+    data.password = this.getHashPassword(password)
     return this.usersClient.send('create_user', data).pipe(
       map(value => {
         if (value?.error) {
@@ -61,16 +73,15 @@ export class UsersService implements OnModuleInit {
     if (!email) {
       throw new BadRequestException('Email is required')
     }
-
     return this.usersClient.send('find_user_by_email', email).pipe(
       map(value => {
         if (value?.error) {
-          throw new BadRequestException(value.error)
+          return value
         }
         if (!value) {
-          return of['ok']
+          return null
         }
-        throw new BadRequestException('User already exists')
+        return plainToInstance(UserEntity, value)
       })
     )
   }

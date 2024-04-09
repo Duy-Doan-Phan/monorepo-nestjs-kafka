@@ -27,6 +27,12 @@ export class UsersController {
     return this.usersService.findById(+id)
   }
 
+  @Get('email/:id')
+  @ResponseMessage('Lấy thông tin người dùng thành công')
+  getByEmail(@Param('id') id: string) {
+    return this.usersService.findByEmail(id)
+  }
+
   @Put(':id')
   @ResponseMessage('Cập nhật thông tin người dùng thành công')
   update(@Param('id') id: string, @Body() data: UpdateUserDto) {

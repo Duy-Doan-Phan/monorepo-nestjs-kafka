@@ -28,15 +28,6 @@
         "tsConfigPath": "libs/libs/tsconfig.lib.json"
       }
     },
-    "auth-microservice": {
-      "type": "application",
-      "root": "apps/auth-microservice",
-      "entryFile": "main",
-      "sourceRoot": "apps/auth-microservice/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/auth-microservice/tsconfig.app.json"
-      }
-    },
     "users-microservice": {
       "type": "application",
       "root": "apps/users-microservice",
