@@ -1,9 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { UsersService } from '../users/users.service'
 import { IUser } from '../users/users.interface'
-import { map } from 'rxjs'
+import { catchError, from, of, switchMap, throwError } from 'rxjs'
 
 @Injectable()
 export class AuthService {
@@ -13,24 +17,30 @@ export class AuthService {
     private usersService: UsersService
   ) {}
 
-  validateUser(email, password) {
-    return this.usersService.findByEmail(email).pipe(
-      map(user => {
-        console.log(user)
-        if (user.password === password) return user
-        else return null
+  validateUser(email: string, password: string) {
+    return from(this.usersService.findByEmail(email)).pipe(
+      switchMap(value => {
+        console.log(value, 'xxxx')
+        if (value.error || !value) {
+          throw new BadRequestException(value.error || 'User not found')
+        }
+
+        const isValidPass = this.usersService.isValidPassword(
+          password,
+          value.password
+        )
+        if (!isValidPass) {
+          throw new BadRequestException('Password không hợp lệ')
+        }
+
+        console.log(value, 'abc')
+        return value
+      }),
+      catchError(error => {
+        // Xử lý lỗi ở đây
+        return throwError(error)
       })
     )
-
-    // const isValidPass = this.usersService.isValidPassword(
-    //   password,
-    //   user.password
-    // )
-    // if (!isValidPass) throw new BadRequestException('Password không hợp lệ')
-    //
-    // // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const { password, ...rest } = user
-    // return rest
   }
 
   login(user: IUser, response: Response) {

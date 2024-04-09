@@ -10,7 +10,7 @@ import { AuthService } from './auth.service'
 import { Public, ResponseMessage, User } from '../decorator/customize'
 import { LocalAuthGuard } from './guard/local-auth.guard'
 import { ApiBody } from '@nestjs/swagger'
-import { UserLoginDto } from '../../../../libs/libs/src/lib/dto'
+import { UserLoginDto } from '@app/libs/lib/dto'
 import { IUser } from '../users/users.interface'
 
 @Controller('auth')
