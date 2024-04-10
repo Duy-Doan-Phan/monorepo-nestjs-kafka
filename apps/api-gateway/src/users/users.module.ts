@@ -12,7 +12,7 @@ import { UsersController } from './users.controller'
         options: {
           client: {
             clientId: 'users',
-            brokers: ['localhost:9092']
+            brokers: ['kafka:9092']
           },
           consumer: {
             groupId: 'users-consumer'

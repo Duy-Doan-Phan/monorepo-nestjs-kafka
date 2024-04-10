@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { ApiTags } from '@nestjs/swagger'
-import { ResponseMessage } from '../decorator/customize'
+import { Public, ResponseMessage } from '../decorator/customize'
 import { CreateUserDto, UpdateUserDto } from '@app/libs/lib/dto'
 
 @Controller('users')
@@ -15,6 +15,7 @@ export class UsersController {
     return this.usersService.findAll()
   }
 
+  @Public()
   @Post()
   @ResponseMessage('Thêm người dùng thành công')
   create(@Body() data: CreateUserDto) {
