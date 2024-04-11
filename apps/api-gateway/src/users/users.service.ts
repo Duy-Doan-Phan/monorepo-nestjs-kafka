@@ -6,7 +6,7 @@ import {
   OnModuleInit
 } from '@nestjs/common'
 import { ClientKafka } from '@nestjs/microservices'
-import { catchError, from, map, Observable, of, take, throwError } from 'rxjs'
+import { map, of } from 'rxjs'
 import { UserEntity } from '@app/libs/lib/entities'
 import { CreateUserDto, UpdateUserDto } from '@app/libs/lib/dto'
 import { plainToInstance } from 'class-transformer'
