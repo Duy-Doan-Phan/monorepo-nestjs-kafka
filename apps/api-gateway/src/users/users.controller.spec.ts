@@ -39,11 +39,11 @@ describe('UsersController (e2e)', () => {
     expect(response.ok).toBe(true)
   })
 
-  it('POST /users', async () => {
+  it('/users (POST)', async () => {
     const userData = {
       name: 'Test User',
-      email: 'duytest@gmail.com'
-      // password: '123456'
+      email: 'duytest@gmail.com',
+      password: '123456'
     }
 
     const response = await request(app.getHttpServer())
@@ -52,6 +52,55 @@ describe('UsersController (e2e)', () => {
 
     expect(response.status).toBe(HttpStatus.CREATED)
   }, 60000)
+
+  it('/users/:id (GET)', async () => {
+    const response = await request(app.getHttpServer()).get('/users/1')
+    expect(response.status).toBe(HttpStatus.OK)
+    expect(response.body).toHaveProperty('name')
+    expect(response.body).toHaveProperty('email')
+    // Add more expectations based on your application's response
+  })
+
+  it('/users/email/:email (GET)', async () => {
+    const response = await request(app.getHttpServer()).get(
+      '/users/email/duytest@gmail.com'
+    )
+    expect(response.status).toBe(HttpStatus.OK)
+    expect(response.body).toHaveProperty('name')
+    expect(response.body).toHaveProperty('email')
+    // Add more expectations based on your application's response
+  })
+
+  it('/users/:id (PUT)', async () => {
+    const response = await request(app.getHttpServer())
+      .put('/users/2')
+      .send({ name: 'Updated Name', password: '123456' })
+
+    expect(response.status).toBe(HttpStatus.OK)
+    expect(response.body).toHaveProperty('name', 'Updated Name')
+    // Add more expectations based on your application's response
+  })
+
+  it('/users/:id (DELETE)', async () => {
+    const response = await request(app.getHttpServer()).delete('/users/2')
+    expect(response.status).toBe(HttpStatus.OK)
+    // Add more expectations based on your application's response
+  })
+
+  it('/auth/login (POST)', async () => {
+    const credentials = {
+      email: 'duy@gmail.com',
+      password: '123456'
+    }
+
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(credentials)
+      .expect(HttpStatus.OK)
+
+    // Ensure response contains token or any other expected data
+    expect(response.body).toHaveProperty('token')
+  })
 
   afterEach(async () => {
     await app.close()

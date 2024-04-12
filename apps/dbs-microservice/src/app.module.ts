@@ -7,7 +7,7 @@ import { DbsMicroserviceModule } from './database/dbs-microservice.module'
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV || 'production'}`, // Sử dụng .env.production khi NODE_ENV không được thiết lập
+      envFilePath: `.env.${process.env.NODE_ENV || 'test'}`, // Sử dụng .env.production khi NODE_ENV không được thiết lập
       isGlobal: true,
       validationSchema: Joi.object({
         // Đảm bảo các biến môi trường cần thiết được thiết lập và đúng định dạng
