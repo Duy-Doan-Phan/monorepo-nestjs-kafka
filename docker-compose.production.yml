@@ -1,0 +1,72 @@
+name: 'app-release'
+services:
+  zookeeper:
+    image: zookeeper:3.7.0
+    container_name: zookeeper
+    ports:
+      - "${ZOOKEEPER_PORT}:${ZOOKEEPER_PORT}"
+    env_file:
+      - .env.production
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    env_file:
+      - .env.production
+    ports:
+      - "${KAFKA_PORT}:${KAFKA_PORT}"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+  db:
+    container_name: db
+    image: postgres:latest
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    env_file:
+      - .env.production
+
+  migration-service:
+    container_name: migration
+    build:
+      context: .
+      dockerfile: Dockerfile.migration-service
+    depends_on:
+      - db
+      - zookeeper
+      - kafka
+
+  dbs-microservice:
+    container_name: dbs-microservice
+    build:
+      context: .
+      dockerfile: Dockerfile.dbs-microservice
+    depends_on:
+      - migration-service
+
+  users-microservice:
+    container_name: users-microservice
+    build:
+      context: .
+      dockerfile: Dockerfile.users-microservice
+    depends_on:
+      - migration-service
+
+  api-gateway:
+    container_name: api_gateway
+    build:
+      context: .
+      dockerfile: Dockerfile.api-gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - migration-service
+
+
+

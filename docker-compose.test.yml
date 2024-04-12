@@ -28,22 +28,22 @@ services:
     env_file:
       - .env
   dbs-microservice:
-   build:
-     context: .
-     dockerfile: Dockerfile.dbs-microservice
-   depends_on:
-     - kafka
-     - db
-     - zookeeper
+    build:
+      context: .
+      dockerfile: Dockerfile.dbs-microservice
+    depends_on:
+      - kafka
+      - db
+      - zookeeper
 
   users-microservice:
-   build:
-     context: .
-     dockerfile: Dockerfile.users-microservice
-   depends_on:
-     - kafka
-     - db
-     - zookeeper
+    build:
+      context: .
+      dockerfile: Dockerfile.users-microservice
+    depends_on:
+      - kafka
+      - db
+      - zookeeper
 
 #  api-gateway:
 #    build:
