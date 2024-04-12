@@ -1,11 +1,24 @@
-## Build app
+## Build app for production
 
 ```bash
 #build and run app
-$ docker compose up -d 
+$ COMPOSE_FILE=docker-compose.production.yml docker-compose --env-file .env.production up -d --build
 ```
 
-## Fake Data
+## Fake Data Cach 1
+
+```bash
+
+$ cd path/project
+
+$ npm i
+
+$ npx knex migrate:latest
+
+$ knex seed:run
+```
+
+## Fake Data Cach 2
 
 ```bash
 #connect to db and run query:
@@ -22,16 +35,15 @@ $ curl --location 'http://localhost:8000/users' \
 --data-urlencode 'name=Duy' \
 --data-urlencode 'email=duy@gmail.com' \
 --data-urlencode 'password=123456'
-
-# test api
-$ localhost:8000/swagger
 ```
 
-## Enjoy
+# Test api
 ```bash
-# test api
 $ localhost:8000/swagger
 ```
+
+
+
 
 
 

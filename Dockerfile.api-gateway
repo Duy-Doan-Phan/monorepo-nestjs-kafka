@@ -13,6 +13,14 @@ RUN npm install
 # Sao chép mã nguồn ứng dụng vào thư mục làm việc
 COPY . .
 
+# Cài đặt wait-for-it
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /usr/wait-for-it.sh
+RUN chmod +x /usr/wait-for-it.sh
+
+
+# Chạy migration và seeding data khi cơ sở dữ liệu PostgreSQL đã sẵn sàng
+CMD ["bash", "-c", "/usr/wait-for-it.sh -t 0 db:5432 -- npx knex migrate:latest && npx knex seed:run"]
+
 # Xây dựng ứng dụng
 RUN npm run build
 

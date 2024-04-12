@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { AuthModule } from './auth/auth.module'
-import { UsersModule } from './users/users.module'
+import { UsersMicroserviceModule } from './users-microservice.module'
 
 @Module({
   imports: [
@@ -9,10 +8,9 @@ import { UsersModule } from './users/users.module'
       envFilePath: `.env.${process.env.NODE_ENV}`, // Xác định file .env tương ứng với môi trường
       isGlobal: true
     }),
-    AuthModule,
-    UsersModule
+    UsersMicroserviceModule
   ],
   controllers: [],
   providers: []
 })
-export class ApiGatewayModule {}
+export class AppModule {}

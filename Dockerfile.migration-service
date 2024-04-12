@@ -1,0 +1,24 @@
+# Define base image
+FROM node:18
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json files
+COPY package*.json ./
+
+# Install npm packages
+RUN npm install
+
+# Copy application source code
+COPY . .
+
+# Set up wait-for-it
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /usr/wait-for-it.sh
+RUN chmod +x /usr/wait-for-it.sh
+
+# Run migration and seeding when PostgreSQL database is ready
+CMD ["bash", "-c", "/usr/wait-for-it.sh -t 0 db:5432 -- npx knex migrate:latest && npx knex seed:run"]
+
+# Expose necessary port
+EXPOSE 8000
