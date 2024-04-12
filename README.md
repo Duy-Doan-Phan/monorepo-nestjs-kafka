@@ -1,8 +1,8 @@
-## Build app for production
+## Build app for test
 
 ```bash
 #build and run app
-$ COMPOSE_FILE=docker-compose.production.yml docker-compose --env-file .env.production up -d --build
+$ COMPOSE_FILE=docker-compose.test.yml  docker-compose --env-file .env.test  up -d --build  
 ```
 
 ## Fake Data Cach 1
@@ -37,13 +37,14 @@ $ curl --location 'http://localhost:8000/users' \
 --data-urlencode 'password=123456'
 ```
 
-# Test api
+
+# Test UT app
 ```bash
-$ localhost:8000/swagger
+
+$ npm run dev users-microservice  //users-microservice
+
+$ npm run dev dbs-microservice    //db-microservice
+
+$ npm test // nest jest
+
 ```
-
-
-
-
-
-

@@ -4,15 +4,19 @@ services:
     image: zookeeper:3.7.0
     container_name: zookeeper
     ports:
-      - "2181:2181"
+      - "${ZOOKEEPER_PORT}:${ZOOKEEPER_PORT}"
+    env_file:
+      - .env.test
 
   kafka:
     image: wurstmeister/kafka:latest
     container_name: kafka
+    env_file:
+      - .env.test
     ports:
-      - "9092:9092"
+      - "${KAFKA_PORT}:${KAFKA_PORT}"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
@@ -26,32 +30,43 @@ services:
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     env_file:
-      - .env
-  dbs-microservice:
+      - .env.test
+
+  migration-service:
+    container_name: migration
     build:
       context: .
-      dockerfile: Dockerfile.dbs-microservice
+      dockerfile: Dockerfile.migration-service
     depends_on:
-      - kafka
       - db
       - zookeeper
-
-  users-microservice:
-    build:
-      context: .
-      dockerfile: Dockerfile.users-microservice
-    depends_on:
       - kafka
-      - db
-      - zookeeper
 
-#  api-gateway:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile.api-gateway
-#    ports:
-#      - "8000:8000"
-#    depends_on:
-#      - kafka
-#      - db
-#      - zookeeper
+  # dbs-microservice:
+  #   container_name: dbs-microservice
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dbs-microservice
+  #   depends_on:
+  #     - migration-service
+
+  # users-microservice:
+  #   container_name: users-microservice
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.users-microservice
+  #   depends_on:
+  #     - migration-service
+
+  # api-gateway:
+  #   container_name: api_gateway
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.api-gateway
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - migration-service
+
+
+
